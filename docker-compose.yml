@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+  app:
+    build: ./app
+    container_name: app
+    networks:
+      proxy-net:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  nginx1:
+    image: nginx:1.28-alpine
+    container_name: nginx1
+    networks:
+      proxy-net:
+        ipv4_address: 172.20.0.11
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - ./nginx1/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-common/xff-trust.conf:/etc/nginx/xff-trust.conf:ro
+    restart: unless-stopped
+
+  nginx2:
+    image: nginx:1.28-alpine
+    container_name: nginx2
+    networks:
+      proxy-net:
+        ipv4_address: 172.20.0.12
+    ports:
+      - "127.0.0.1:8082:80"
+    volumes:
+      - ./nginx2/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-common/xff-trust.conf:/etc/nginx/xff-trust.conf:ro
+    restart: unless-stopped
+
+  nginx3:
+    image: nginx:1.28-alpine
+    container_name: nginx3
+    networks:
+      proxy-net:
+        ipv4_address: 172.20.0.13
+    ports:
+      - "127.0.0.1:8083:80"
+    volumes:
+      - ./nginx3/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-common/xff-trust.conf:/etc/nginx/xff-trust.conf:ro
+    restart: unless-stopped
+
+  lb:
+    image: nginx:1.28-alpine
+    container_name: nginx-lb
+    networks:
+      proxy-net:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "8080:80"
+    volumes:
+      - ./lb/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - nginx1
+      - nginx2
+      - nginx3
+    restart: unless-stopped
+
+networks:
+  proxy-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
