@@ -50,8 +50,8 @@ curl http://localhost:8080/ -H "X-Forwarded-For: 172.20.0.11"
 Клиент
   │
   ▼
-lb (8080) ── round-robin ──► nginx1 ──► app
-                         ──► nginx2 ──► app
+lb (8080) ── round-robin ──► nginx1 ──► nginx2 ──► nginx3 ──► app
+                         ──► nginx2 ──► nginx3 ──► app
                          ──► nginx3 ──► app
 ```
  
